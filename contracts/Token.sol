@@ -9,6 +9,7 @@ contract Token {
   uint8 private _decimals;
   address public owner;
   mapping (address => uint) private balances;
+  mapping (address => mapping (address => uint)) private _allowance;
 
   constructor(){
     _totalSupply = 100_000;
@@ -57,14 +58,29 @@ contract Token {
   }
 
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool success){
+    require(_to != address(0), "Cannot transfer to zero address");
+    require(_from != address(0), "Cannot spend from zero address");
+    require(balances[_from] >= _value && _allowance[_from][msg.sender] >= _value, "Insufficient funds");
+    
+    balances[_to] += _value;
+    balances[_from] -= _value;
 
+    emit Transfer(msg.sender, _to, _value);
+
+    return true;
   }
 
   function approve(address _spender, uint256 _value) public returns (bool success){
+    require(_spender != address(0), "Cannot spend from zero address");
+    
+    _allowance[msg.sender][_spender] = _value;
+    
+    emit Approval(msg.sender, _spender, _value);
 
+    return true;
   }
 
   function allowance(address _owner, address _spender) public view returns (uint256 remaining){
-
+    return _allowance[_owner][_spender];
   }
 }
