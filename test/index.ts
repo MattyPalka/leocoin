@@ -11,11 +11,13 @@ describe("Token", function () {
   let token: Token;
   let owner: SignerWithAddress;
   let address1: SignerWithAddress;
+  let address2: SignerWithAddress;
+  let address3: SignerWithAddress;
 
   beforeEach(async () => {
     const Token = await ethers.getContractFactory("Token");
     token = await Token.deploy();
-    [owner, address1] = await ethers.getSigners();
+    [owner, address1, address2, address3] = await ethers.getSigners();
     await token.deployed();
   });
 
@@ -45,7 +47,7 @@ describe("Token", function () {
 
     it("Should not have any assets at not owner address", async () => {
       const address1Balance = await token.balanceOf(address1.address);
-      expect(await token.balanceOf(address1.address)).to.equal(address1Balance);
+      expect(address1Balance).to.equal(0);
     });
   });
 
@@ -56,8 +58,23 @@ describe("Token", function () {
       ).to.be.revertedWith("Cannot transfer to zero address");
     });
 
-    it("Should transfer when sufficient funds and update balance", async () => {});
-    it("Should not transfer when insufficient funds", async () => {});
+    it("Should transfer when sufficient funds and update balance", async () => {
+      const address1Balance = await token.balanceOf(address1.address);
+      expect(address1Balance).to.equal(0);
+
+      await token.transfer(address1.address, 4000);
+
+      const address1BalanceUpdated = await token.balanceOf(address1.address);
+      expect(address1BalanceUpdated).to.equal(4000);
+    });
+
+    it("Should not transfer when insufficient funds", async () => {
+      const ownerBalance = await token.balanceOf(owner.address);
+
+      await expect(
+        token.transfer(address1.address, BigNumber.from(ownerBalance).add(1))
+      ).to.be.revertedWith("Insufficient funds");
+    });
 
     it("Should set allowance", async () => {
       const givenAllowance = 100;
@@ -83,7 +100,36 @@ describe("Token", function () {
       ).to.be.revertedWith("Cannot set for zero address");
     });
 
-    it("Should allow transfer within allowance", async () => {});
-    it("Should forbid transfer above allowance", async () => {});
+    it("Should allow transfer within allowance", async () => {
+      const givenAllowance = 100;
+      await token.transfer(address1.address, 200);
+      await token
+        .connect(address1)
+        .setAllowance(address2.address, givenAllowance);
+      await token
+        .connect(address2)
+        .transferFrom(address1.address, address3.address, givenAllowance);
+
+      expect(await token.balanceOf(address3.address)).to.equal(givenAllowance);
+    });
+
+    it("Should forbid transfer above allowance", async () => {
+      const givenAllowance = 100;
+      await token.transfer(address1.address, 200);
+      await token
+        .connect(address1)
+        .setAllowance(address2.address, givenAllowance);
+      await expect(
+        token
+          .connect(address2)
+          .transferFrom(address1.address, address3.address, givenAllowance + 1)
+      ).to.be.revertedWith("Insufficient spending funds");
+    });
+
+    it("Should forbid transfer from without allowance", async () => {
+      await expect(
+        token.transferFrom(address2.address, address1.address, 300)
+      ).to.be.revertedWith("Insufficient spending funds");
+    });
   });
 });

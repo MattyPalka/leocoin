@@ -39,7 +39,7 @@ contract Token {
 
   function transfer(address _to, uint256 _value) public returns (bool success){
     require(_to != address(0), "Cannot transfer to zero address");
-    require(_value < 0, "Cannot transfer negative amount");
+    require(_value >= 0, "Cannot transfer negative amount");
     require(balances[msg.sender] >= _value, "Insufficient funds");
 
     balances[msg.sender] -= _value;
@@ -53,7 +53,7 @@ contract Token {
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool success){
     require(_to != address(0), "Cannot transfer to zero address");
     require(_from != address(0), "Cannot spend from zero address");
-    require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value, "Insufficient funds");
+    require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value, "Insufficient spending funds");
     
     balances[_to] += _value;
     balances[_from] -= _value;
