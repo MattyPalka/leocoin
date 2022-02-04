@@ -76,4 +76,13 @@ contract Token {
   function allowance(address _owner, address _spender) public view returns (uint256 remaining){
     return allowed[_owner][_spender];
   }
+
+  function setAllowance(address _for, uint256 _value) public returns (bool success) {
+    require(_for != address(0), "Cannot set for zero address");
+    
+    allowed[msg.sender][_for] = _value;
+
+    return true;
+
+  }
 }

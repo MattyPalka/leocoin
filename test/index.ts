@@ -49,5 +49,33 @@ describe("Token", function () {
     });
   });
 
-  describe("Transactions", () => {});
+  describe("Transactions", () => {
+    it("Should not transfer to 0 address", async () => {});
+    it("Should transfer when sufficient funds and update balance", async () => {});
+    it("Should not transfer when insufficient funds", async () => {});
+
+    it("Should set allowance", async () => {
+      const address1Allowance = await token.allowance(
+        owner.address,
+        address1.address
+      );
+      expect(address1Allowance).to.equal(0);
+      const givenAllowance = 100;
+      await token.setAllowance(address1.address, givenAllowance);
+      const address1AllowanceUpdated = await token.allowance(
+        owner.address,
+        address1.address
+      );
+      expect(address1AllowanceUpdated).to.equal(givenAllowance);
+    });
+
+    it("Should not set allowance for zero address", async () => {
+      await expect(
+        token.setAllowance(ethers.constants.AddressZero, 1000)
+      ).to.be.revertedWith("Cannot set for zero address");
+    });
+
+    it("Should allow transfer within allowance", async () => {});
+    it("Should forbid transfer above allowance", async () => {});
+  });
 });
