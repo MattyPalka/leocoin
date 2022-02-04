@@ -50,22 +50,30 @@ describe("Token", function () {
   });
 
   describe("Transactions", () => {
-    it("Should not transfer to 0 address", async () => {});
+    it("Should not transfer to 0 address", async () => {
+      await expect(
+        token.transfer(ethers.constants.AddressZero, 400)
+      ).to.be.revertedWith("Cannot transfer to zero address");
+    });
+
     it("Should transfer when sufficient funds and update balance", async () => {});
     it("Should not transfer when insufficient funds", async () => {});
 
     it("Should set allowance", async () => {
+      const givenAllowance = 100;
       const address1Allowance = await token.allowance(
         owner.address,
         address1.address
       );
+
       expect(address1Allowance).to.equal(0);
-      const givenAllowance = 100;
+
       await token.setAllowance(address1.address, givenAllowance);
       const address1AllowanceUpdated = await token.allowance(
         owner.address,
         address1.address
       );
+
       expect(address1AllowanceUpdated).to.equal(givenAllowance);
     });
 
