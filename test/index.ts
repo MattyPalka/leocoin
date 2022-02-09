@@ -85,7 +85,7 @@ describe("Token", function () {
 
       expect(address1Allowance).to.equal(0);
 
-      await token.setAllowance(address1.address, givenAllowance);
+      await token.approve(address1.address, givenAllowance);
       const address1AllowanceUpdated = await token.allowance(
         owner.address,
         address1.address
@@ -96,16 +96,14 @@ describe("Token", function () {
 
     it("Should not set allowance for zero address", async () => {
       await expect(
-        token.setAllowance(ethers.constants.AddressZero, 1000)
-      ).to.be.revertedWith("Cannot set for zero address");
+        token.approve(ethers.constants.AddressZero, 1000)
+      ).to.be.revertedWith("Cannot approve for zero address");
     });
 
     it("Should allow transfer within allowance", async () => {
       const givenAllowance = 100;
       await token.transfer(address1.address, 200);
-      await token
-        .connect(address1)
-        .setAllowance(address2.address, givenAllowance);
+      await token.connect(address1).approve(address2.address, givenAllowance);
       await token
         .connect(address2)
         .transferFrom(address1.address, address3.address, givenAllowance);
@@ -116,9 +114,7 @@ describe("Token", function () {
     it("Should forbid transfer above allowance", async () => {
       const givenAllowance = 100;
       await token.transfer(address1.address, 200);
-      await token
-        .connect(address1)
-        .setAllowance(address2.address, givenAllowance);
+      await token.connect(address1).approve(address2.address, givenAllowance);
       await expect(
         token
           .connect(address2)

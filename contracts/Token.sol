@@ -63,7 +63,7 @@ contract Token {
   }
 
   function approve(address _spender, uint256 _value) public returns (bool success){
-    require(_spender != address(0), "Cannot spend from zero address");
+    require(_spender != address(0), "Cannot approve for zero address");
     
     allowed[msg.sender][_spender] = _value;
     
@@ -76,12 +76,4 @@ contract Token {
     return allowed[_owner][_spender];
   }
 
-  function setAllowance(address _for, uint256 _value) public returns (bool success) {
-    require(_for != address(0), "Cannot set for zero address");
-    
-    allowed[msg.sender][_for] = _value;
-
-    return true;
-
-  }
 }
