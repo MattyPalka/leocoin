@@ -153,4 +153,48 @@ describe("Token", function () {
       ).to.be.revertedWith("Insufficient spending funds");
     });
   });
+
+  describe("Purchase", () => {
+    it("Should not be able to purchase LEO for 0 ETH", async () => {
+      await expect(
+        token.connect(address1).buy({ value: ethers.utils.parseEther("0") })
+      ).to.be.revertedWith("Minimum 1 wei to buy LEO");
+    });
+
+    it("Should be able to purchase LEO with ETH", async () => {
+      const ethPurchaseAmount = 4;
+      await token
+        .connect(address1)
+        .buy({ value: ethers.utils.parseEther(`${ethPurchaseAmount}`) });
+
+      expect(await token.balanceOf(address1.address)).to.equal(
+        BigNumber.from(`${ethPurchaseAmount * 100}`).mul(
+          BigNumber.from(10).pow(DECIMALS)
+        )
+      );
+    });
+
+    it("Should not be able to spend LEO when still vested", async () => {
+      const ethPurchaseAmount = 2;
+      await token
+        .connect(address1)
+        .buy({ value: ethers.utils.parseEther(`${ethPurchaseAmount}`) });
+
+      await expect(
+        token.connect(address1).transfer(address2.address, 100)
+      ).to.be.revertedWith("Funds still vested");
+    });
+
+    it("Should be able to spend LEO when funds no longer vested", async () => {
+      const ethPurchaseAmount = 2;
+      await token
+        .connect(address1)
+        .buy({ value: ethers.utils.parseEther(`${ethPurchaseAmount}`) });
+
+      await ethers.provider.send("evm_increaseTime", [86400 * 8]);
+
+      await token.connect(address1).transfer(address2.address, 100);
+      expect(await token.balanceOf(address2.address)).to.equal(100);
+    });
+  });
 });

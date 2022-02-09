@@ -1,16 +1,19 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
+import "hardhat/console.sol";
 
 contract Token {
 
   address public owner;
   mapping (address => uint) private balances;
   mapping (address => mapping (address => uint)) private allowed;
+  mapping (address => uint) private vestedAmount;
+  mapping (address => uint) private vestedUntilDate;
 
   constructor(){
     balances[address(this)] = totalSupply();
     owner = msg.sender;
-    allowed[address(this)][msg.sender] = totalSupply();
+    allowed[address(this)][msg.sender] = totalSupply(); 
   }
 
   event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -37,9 +40,18 @@ contract Token {
     return balances[_owner];
   }
 
+  function canSpendTokens(address _spender, uint _value) public view returns (bool canSpend){
+    require(balances[_spender] >= _value, "Insufficient funds");
+    if(vestedUntilDate[_spender] > block.timestamp){
+      require(balances[_spender] - vestedAmount[_spender] >= _value, "Funds still vested");
+    }
+
+    return true;
+  }
+
   function transfer(address _to, uint256 _value) public returns (bool success){
     require(_to != address(0), "Cannot transfer to zero address");
-    require(balances[msg.sender] >= _value, "Insufficient funds");
+    require(canSpendTokens(msg.sender, _value));
 
     balances[msg.sender] -= _value;
     balances[_to] += _value;
@@ -96,7 +108,19 @@ contract Token {
   }
 
   function buy() public payable {
-    // sell 1ETH = 100LEO
-    // VEST TOKEN FOR A WEEK
+    require(msg.value > 0, "Minimum 1 wei to buy LEO");
+
+    uint tokensToSend = msg.value * 100;
+
+    require(vestedUntilDate[msg.sender] < block.timestamp, "Cannot buy in a week of prev");
+    require(balances[address(this)] >= tokensToSend, "Cannot sell more than have");
+    
+    balances[address(this)] -= tokensToSend;
+    balances[msg.sender] += tokensToSend;
+    vestedUntilDate[msg.sender] = block.timestamp + (7 days);
+    vestedAmount[msg.sender] = tokensToSend;
+
+    emit Transfer(address(this), msg.sender, tokensToSend);
+
   }
 }
