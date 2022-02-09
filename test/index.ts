@@ -40,14 +40,25 @@ describe("Token", function () {
       expect(await token.owner()).to.equal(owner.address);
     });
 
-    it("Should assign all tokens to the owner", async () => {
+    it("Should assign all tokens to the token addess", async () => {
+      const tokenBalance = await token.balanceOf(token.address);
+      expect(await token.totalSupply()).to.equal(tokenBalance);
+    });
+
+    it("Should not have any assets at owner address", async () => {
       const ownerBalance = await token.balanceOf(owner.address);
-      expect(await token.totalSupply()).to.equal(ownerBalance);
+      expect(ownerBalance).to.equal(0);
     });
 
     it("Should not have any assets at not owner address", async () => {
       const address1Balance = await token.balanceOf(address1.address);
       expect(address1Balance).to.equal(0);
+    });
+
+    it("Should allow owner to spent all tokens", async () => {
+      expect(await token.allowance(token.address, owner.address)).to.equal(
+        await token.totalSupply()
+      );
     });
   });
 
@@ -58,9 +69,21 @@ describe("Token", function () {
       ).to.be.revertedWith("Cannot transfer to zero address");
     });
 
+    it("Should allow to withdraw LEO for owner", async () => {
+      await token.withdrawLeo(10_000);
+      expect(await token.balanceOf(owner.address)).to.equal(10_000);
+    });
+
+    it("Should not allow to withdraw LEO for other than owner address", async () => {
+      await expect(
+        token.connect(address1).withdrawLeo(10_000)
+      ).to.be.revertedWith("Only owner can withdraw LEO");
+    });
+
     it("Should transfer when sufficient funds and update balance", async () => {
       const address1Balance = await token.balanceOf(address1.address);
       expect(address1Balance).to.equal(0);
+      await token.withdrawLeo(10_000);
 
       await token.transfer(address1.address, 4000);
 
@@ -102,6 +125,7 @@ describe("Token", function () {
 
     it("Should allow transfer within allowance", async () => {
       const givenAllowance = 100;
+      await token.withdrawLeo(10_000);
       await token.transfer(address1.address, 200);
       await token.connect(address1).approve(address2.address, givenAllowance);
       await token
@@ -113,6 +137,7 @@ describe("Token", function () {
 
     it("Should forbid transfer above allowance", async () => {
       const givenAllowance = 100;
+      await token.withdrawLeo(10_000);
       await token.transfer(address1.address, 200);
       await token.connect(address1).approve(address2.address, givenAllowance);
       await expect(

@@ -8,9 +8,9 @@ contract Token {
   mapping (address => mapping (address => uint)) private allowed;
 
   constructor(){
-
-    balances[msg.sender] = totalSupply();
+    balances[address(this)] = totalSupply();
     owner = msg.sender;
+    allowed[address(this)][msg.sender] = totalSupply();
   }
 
   event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -76,4 +76,27 @@ contract Token {
     return allowed[_owner][_spender];
   }
 
+  function withdrawLeo(uint _value) public returns (bool success) {
+    require(msg.sender == owner, "Only owner can withdraw LEO");
+    require(balances[address(this)] >= _value, "Insufficient funds");
+
+    balances[address(this)] -= _value;
+    balances[msg.sender] += _value;
+
+    emit Transfer(address(this), msg.sender, _value);
+
+    return true;
+  }
+
+  function paymeup() public payable {
+    require(msg.sender == owner, "Only owner can withdraw ETH");
+    // WITHDRAW CONTRACT ETH TO OWNER
+
+
+  }
+
+  function buy() public payable {
+    // sell 1ETH = 100LEO
+    // VEST TOKEN FOR A WEEK
+  }
 }
