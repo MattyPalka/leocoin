@@ -196,5 +196,40 @@ describe("Token", function () {
       await token.connect(address1).transfer(address2.address, 100);
       expect(await token.balanceOf(address2.address)).to.equal(100);
     });
+
+    it("Should not send any ETH to not owner", async () => {
+      const ethPurchaseAmount = 2;
+      await token
+        .connect(address1)
+        .buy({ value: ethers.utils.parseEther(`${ethPurchaseAmount}`) });
+
+      await expect(token.connect(address1).paymeup()).to.be.revertedWith(
+        "Only owner can withdraw ETH"
+      );
+    });
+
+    it("Should not send ETH to owner if there's no funds", async () => {
+      await expect(token.paymeup()).to.be.revertedWith("No funds to send");
+    });
+
+    it("Should send ETH to owner if there are funds", async () => {
+      const ethPurchaseAmount = 2;
+      const statingBalance = await ethers.provider.getBalance(owner.address);
+      await token
+        .connect(address1)
+        .buy({ value: ethers.utils.parseEther(`${ethPurchaseAmount}`) });
+
+      const transaction = await token.paymeup();
+      const transactionResult = await transaction.wait();
+      const updatedBalance = await ethers.provider.getBalance(owner.address);
+
+      const gas = BigNumber.from(transactionResult.gasUsed).mul(
+        transactionResult.effectiveGasPrice
+      );
+
+      expect(
+        BigNumber.from(ethers.utils.parseEther(`${ethPurchaseAmount}`))
+      ).to.equal(BigNumber.from(updatedBalance).sub(statingBalance).add(gas));
+    });
   });
 });

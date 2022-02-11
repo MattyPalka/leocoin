@@ -102,9 +102,12 @@ contract Token {
 
   function paymeup() public payable {
     require(msg.sender == owner, "Only owner can withdraw ETH");
-    // WITHDRAW CONTRACT ETH TO OWNER
 
-
+    uint weiAmount = address(this).balance;
+    
+    require(weiAmount > 0, "No funds to send");
+    
+    payable(msg.sender).transfer(weiAmount);
   }
 
   function buy() public payable {
