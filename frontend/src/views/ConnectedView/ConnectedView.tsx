@@ -22,7 +22,7 @@ export const ConnectedView = ({tokenData, refresh, setTokenData } : Props) => {
 
   const withdrawLEO = async () => {
 
-    const tx = await token?.withdrawLeo(handleLeoAmount());
+    const tx = await token?.withdrawLeo(handleAmount(leoValue));
     await tx.wait();
     
     refresh();
@@ -32,8 +32,8 @@ export const ConnectedView = ({tokenData, refresh, setTokenData } : Props) => {
     await token?.paymeup();
   }
 
-  const handleLeoAmount = () => {
-    const splitValue = leoValue.split(".")
+  const handleAmount = (value: string) => {
+    const splitValue = value.split(".")
     const actualDecimals = `${splitValue[1]||""}${"0".repeat(18-(splitValue[1] ? splitValue[1].length:0))}`
     return BigNumber.from(`${splitValue[0]}${actualDecimals}`) 
   }
@@ -86,6 +86,7 @@ export const ConnectedView = ({tokenData, refresh, setTokenData } : Props) => {
           setEthValue(e.target.value)
         }}
         />
+        <span>You will get: {ethers.utils.formatEther(handleAmount(ethValue).mul(100) || "0")} LEO</span>
           <button onClick={buy}>
             Buy LEO
           </button>
