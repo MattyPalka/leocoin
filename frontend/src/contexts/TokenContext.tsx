@@ -1,11 +1,10 @@
 
 import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
-import { TokenData } from "../types/TokenData";
+import { TokenData } from "types/TokenData";
 import { makeContext } from "./ContextCreator";
-
-import TokenArtifacts from '../contracts/Token.json'
-import contractAddress from '../contracts/contract-addresses.json'
+import TokenArtifacts from 'contracts/Token.json'
+import contractAddress from 'contracts/contract-addresses.json'
 
 export const [useTokenContext, TokenProvider] = makeContext(()=>{
 
@@ -28,6 +27,7 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
       signer,
       signerAddress
     }))
+
   },[])
 
   const refresh = useCallback( async () => {
@@ -57,8 +57,7 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
       tokenSymbol,
       isOwnerConnected,
     }))
-  
-    
+
   },[tokenData?.token, tokenData?.signer])
 
   useEffect(()=>{
@@ -71,10 +70,9 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
       connect()
     }
     window.ethereum.on("accountsChanged", handleAccountChange)
-    return () => {window.ethereum.removeListener("accountsChanged", handleAccountChange )}
+    return () => { window.ethereum.removeListener( "accountsChanged", handleAccountChange )}
   },[connect])
   
-
   return {tokenData, setTokenData, connect, connected, refresh, ownerEthBalance}
 });
 

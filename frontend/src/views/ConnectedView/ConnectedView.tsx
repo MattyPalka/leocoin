@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { useState } from "react";
-import { useTokenContext } from '../../contexts/TokenContext';
-import { TokenData } from "../../types/TokenData";
+import { useTokenContext } from 'contexts/TokenContext';
+import { TokenData } from 'types/TokenData';
 
 
 export const ConnectedView = () => {
