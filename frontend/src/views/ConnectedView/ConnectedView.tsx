@@ -1,18 +1,14 @@
 import { BigNumber, ethers } from "ethers";
-import { useCallback, useEffect, useState } from "react";
-import { TokenData } from "../../types/TokenData"
+import { useState } from "react";
+import { useTokenContext } from '../../contexts/TokenContext';
+import { TokenData } from "../../types/TokenData";
 
-interface Props {
-  tokenData: TokenData,
-  refresh: VoidFunction;
-  setTokenData: React.Dispatch<React.SetStateAction<TokenData | undefined>>
-}
 
-export const ConnectedView = ({tokenData, refresh, setTokenData } : Props) => {
-  const { token, signerAddress, isOwnerConnected } = tokenData;
+export const ConnectedView = () => {
+  const { tokenData, refresh, ownerEthBalance} = useTokenContext()
+  const { token, signerAddress, isOwnerConnected, tokenBalance, tokenSymbol } = tokenData as TokenData;
   const [leoValue, setLeoValue] = useState("0")
   const [ethValue, setEthValue] = useState("0")
-  const [contractEthBalance, setContractEthBalance] = useState("0")
 
   const buy = async () => {
     const tx = await token?.buy({value: ethers.utils.parseEther(ethValue)})
@@ -38,19 +34,11 @@ export const ConnectedView = ({tokenData, refresh, setTokenData } : Props) => {
     return BigNumber.from(`${splitValue[0]}${actualDecimals}`) 
   }
 
-  const checkCurrentETHAmount = useCallback (async () => {
-    const ethBalance = await token?.provider.getBalance(token.address) || 0;
-    setContractEthBalance(ethers.utils.formatEther(ethBalance))
-  },[token?.address, token?.provider])
-
-  useEffect(()=>{
-    isOwnerConnected && checkCurrentETHAmount();
-  },[isOwnerConnected, checkCurrentETHAmount])
 
   return (
     <>
-      <div>{tokenData.signerAddress}</div>
-      <div>{tokenData.tokenBalance} {tokenData?.tokenSymbol}</div>
+      <div>{signerAddress}</div>
+      <div>{tokenBalance} {tokenSymbol}</div>
       <div>
         {isOwnerConnected ? (
           <>
@@ -59,7 +47,6 @@ export const ConnectedView = ({tokenData, refresh, setTokenData } : Props) => {
                 if (!/^(\d)*\.?\d{0,18}$/.test(e.target.value)){
                   return
                 }
-                
                 setLeoValue(e.target.value)}}
               />
 
@@ -69,8 +56,8 @@ export const ConnectedView = ({tokenData, refresh, setTokenData } : Props) => {
               <button onClick={withdrawETH}>Withdraw ETH</button>
             </div>
             <div>
-              <div>ETH BALANCE: {contractEthBalance}</div>
-              <button onClick={checkCurrentETHAmount}>Refresh Contract ETH Balance</button>
+              <div>ETH BALANCE: {ownerEthBalance}</div>
+              <button onClick={refresh}>Refresh Contract ETH Balance</button>
             </div>
           </>
         ) : (
