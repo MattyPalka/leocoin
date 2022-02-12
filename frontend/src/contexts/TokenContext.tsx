@@ -1,6 +1,6 @@
 
 import { ethers } from "ethers";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { TokenData } from "../types/TokenData";
 import { makeContext } from "./ContextCreator";
 
@@ -13,11 +13,7 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
   const [tokenData, setTokenData] = useState<TokenData>()
   const [ownerEthBalance, setOwnerEthBalance] = useState('')
 
-  const connect = async () => {
-    if (connected) {
-      console.log("already connected")
-      return
-    } 
+  const connect = useCallback (async () => {
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
@@ -32,7 +28,7 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
       signer,
       signerAddress
     }))
-  }
+  },[])
 
   const refresh = useCallback( async () => {
      
@@ -64,6 +60,20 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
   
     
   },[tokenData?.token, tokenData?.signer])
+
+  useEffect(()=>{
+    const handleAccountChange = ([newAddress]: [string]) => {
+      if (newAddress === undefined){
+        setConnected(false);
+        setTokenData(undefined);
+        return
+      } 
+      connect()
+    }
+    window.ethereum.on("accountsChanged", handleAccountChange)
+    return () => {window.ethereum.removeListener("accountsChanged", handleAccountChange )}
+  },[connect])
+  
 
   return {tokenData, setTokenData, connect, connected, refresh, ownerEthBalance}
 });
