@@ -21,5 +21,6 @@ module.exports = {
       { ignores: ["modules"] },
     ],
     "node/no-missing-import": "warn",
+    indent: ["error", 2, { SwitchCase: 1 }],
   },
 };

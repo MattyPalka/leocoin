@@ -101,7 +101,7 @@ contract Token {
   }
 
   function paymeup() public payable {
-    require(msg.sender == owner, "Only owner can withdraw ETH");
+    require(isOwner(), "Only owner can withdraw ETH");
 
     uint weiAmount = address(this).balance;
     
@@ -124,6 +124,12 @@ contract Token {
     vestedAmount[msg.sender] = tokensToSend;
 
     emit Transfer(address(this), msg.sender, tokensToSend);
+  }
 
+  function isOwner() public view returns (bool isOwnerTrue) {
+    if (msg.sender == owner) {
+      return true;
+    }
+    return false;
   }
 }

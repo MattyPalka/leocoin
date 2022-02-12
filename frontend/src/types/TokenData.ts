@@ -8,4 +8,5 @@ export interface TokenData {
   tokenBalance?: string;
   tokenName?: string;
   tokenSymbol?: string;
+  isOwnerConnected?: boolean;
 }

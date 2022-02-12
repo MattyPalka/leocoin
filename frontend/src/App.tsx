@@ -23,10 +23,10 @@ function App() {
   
     const token = new ethers.Contract(contractAddress.Token, TokenArtifacts.abi, signer);
     setTokenData(prevState => ({
+      ...prevState,
       token,
       signer,
-      signerAddress,
-      ...prevState
+      signerAddress
     }))
   }
 
@@ -35,6 +35,8 @@ function App() {
     if (!tokenData?.token || !tokenData?.signer){
       return;
     }
+
+    console.log('refresh');
     const { token, signer } = tokenData
 
     const tokens = await token.balanceOf(signer.getAddress());
@@ -42,12 +44,14 @@ function App() {
     const tokenBalanceReadable = ethers.utils.formatUnits(tokens, 18);
     const tokenName = await token.name();
     const tokenSymbol = await token.symbol();
+    const isOwnerConnected = await token.isOwner();
 
     setTokenData(prevState => ({
+      ...prevState,
       tokenBalance: tokenBalanceReadable,
       tokenName,
       tokenSymbol,
-      ...prevState
+      isOwnerConnected,
     }))
   
     
@@ -62,7 +66,7 @@ function App() {
   }
 
   if (connected && tokenData) {
-    return <ConnectedView tokenData={tokenData} />
+    return <ConnectedView tokenData={tokenData} refresh={refresh} setTokenData={setTokenData}/>
   }
 
   return (
