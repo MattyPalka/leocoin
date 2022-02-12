@@ -12,6 +12,16 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
   const [tokenData, setTokenData] = useState<TokenData>()
   const [ownerEthBalance, setOwnerEthBalance] = useState('')
 
+
+  let token: ethers.Contract | undefined, 
+      signer: ethers.providers.JsonRpcSigner | undefined;
+  
+  if (tokenData){
+    token = tokenData.token;
+    signer = tokenData.signer;
+  }
+  
+
   const connect = useCallback (async () => {
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -32,11 +42,9 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
 
   const refresh = useCallback( async () => {
      
-    if (!tokenData?.token || !tokenData?.signer){
+    if (!token || !signer){
       return;
     }
-
-    const { token, signer } = tokenData
 
     const tokens = await token.balanceOf(signer.getAddress());
 
@@ -58,7 +66,7 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
       isOwnerConnected,
     }))
 
-  },[tokenData?.token, tokenData?.signer])
+  },[token, signer])
 
   useEffect(()=>{
     const handleAccountChange = ([newAddress]: [string]) => {
