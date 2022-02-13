@@ -2,6 +2,10 @@ import { BigNumber, ethers } from "ethers";
 import { useState } from "react";
 import { useTokenContext } from 'contexts/TokenContext';
 import { TokenData } from 'types/TokenData';
+import { ConnectedView as Styled } from "./styled";
+import { ListedText } from "components/ListedText";
+import { InputWithButton } from "components/InputWithButton";
+import { setToast } from "utils/setToast";
 
 
 export const ConnectedView = () => {
@@ -11,21 +15,32 @@ export const ConnectedView = () => {
   const [ethValue, setEthValue] = useState("0")
 
   const buy = async () => {
-    const tx = await token?.buy({value: ethers.utils.parseEther(ethValue)})
-    await tx.wait();
-    refresh()
+    try{
+      const tx = await token?.buy({value: ethers.utils.parseEther(ethValue)})
+      await tx.wait();
+      refresh()
+    } catch (e: any) {
+      setToast(e.data.message)
+    }
   }
 
   const withdrawLEO = async () => {
-
-    const tx = await token?.withdrawLeo(handleAmount(leoValue));
-    await tx.wait();
-    
-    refresh();
+    try {
+      const tx = await token?.withdrawLeo(handleAmount(leoValue));
+      await tx.wait();
+      
+      refresh();
+    } catch (e: any){
+      setToast(e.data.message)
+    }
   }
 
   const withdrawETH = async () => {
-    await token?.paymeup();
+    try {
+      await token?.paymeup();
+    } catch (e: any){
+      setToast(e.data.message)
+    }
   }
 
   const handleAmount = (value: string) => {
@@ -34,52 +49,62 @@ export const ConnectedView = () => {
     return BigNumber.from(`${splitValue[0]}${actualDecimals}`) 
   }
 
-
   return (
-    <>
-      <div>{signerAddress}</div>
-      <div>{tokenBalance} {tokenSymbol}</div>
+    <Styled.ViewWrapper>
+      <Styled.Welcome>
+      <h2>LEOCODE TOKEN</h2>
+      <p>Welcome {isOwnerConnected ? 'owner' : 'investor'}</p>
+      </Styled.Welcome>
+      <Styled.Data>
+      <ListedText label='Your wallet address:' text={signerAddress} />
+      <ListedText label="Current balance:" text={`${tokenBalance} ${tokenSymbol}`} />
+
       <div>
         {isOwnerConnected ? (
           <>
-            <div>
-              <input value={leoValue} onChange={e=>{
+            <ListedText label='As a token owner you can withdraw as many LEO as you want' />
+            <InputWithButton 
+              inputValue={leoValue} 
+              inputOnChange={(e) => {
                 if (!/^(\d)*\.?\d{0,18}$/.test(e.target.value)){
                   return
                 }
-                setLeoValue(e.target.value)}}
-              />
-
-              <button onClick={withdrawLEO}>Withdraw Leo</button>
-            </div>
-            <div>
-              <button onClick={withdrawETH}>Withdraw ETH</button>
-            </div>
-            <div>
-              <div>ETH BALANCE: {ownerEthBalance}</div>
-              <button onClick={refresh}>Refresh Contract ETH Balance</button>
-            </div>
+                setLeoValue(e.target.value)}
+              }
+              buttonText='Withdraw Leo'
+              onButtonClick={withdrawLEO}
+            />
+            <hr />
+            <h2>Need some Ethereum?</h2>
+            <ListedText label='Current Contract Balance:' text={`${ownerEthBalance} ETH`} />
+            <Styled.ETHButtons>
+              <Styled.Button onClick={withdrawETH} $type='success'>Withdraw ETH</Styled.Button>
+              <Styled.Button onClick={refresh} >Refresh Contract ETH Balance</Styled.Button>
+            </Styled.ETHButtons>
           </>
         ) : (
         <>
-        <div>1ETH = 100LE0
-        </div>
-        <label>ETH Value to spend</label>
-        <input value={ethValue} onChange={(e)=>{
-          if (!/^(\d)*\.?\d{0,18}$/.test(e.target.value)){
-            return
-          }
-          
-          setEthValue(e.target.value)
-        }}
-        />
-        <span>You will get: {ethers.utils.formatEther(handleAmount(ethValue).mul(100) || "0")} LEO</span>
-          <button onClick={buy}>
-            Buy LEO
-          </button>
+          <h2>Want to buy some LEOs?</h2>
+          <ListedText 
+            label={`You will pay ${ethValue} ETH`}
+            text="for this much LEO"
+          />
+          <InputWithButton 
+            inputValue={leoValue}
+            inputOnChange={(e)=>{
+              if (!/^(\d)*\.?\d{0,18}$/.test(e.target.value)){
+                return
+              }
+              setLeoValue(e.target.value)
+              setEthValue(ethers.utils.formatEther(handleAmount(e.target.value).div(100) || "0"))
+            }}
+            onButtonClick={buy}
+            buttonText='Buy LEO'
+          />
         </>
         )}    
       </div>
-    </>
+      </Styled.Data>
+    </Styled.ViewWrapper>
   )
 }

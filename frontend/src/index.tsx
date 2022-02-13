@@ -4,11 +4,14 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { TokenProvider } from './contexts/TokenContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 ReactDOM.render(
   <React.StrictMode>
     <TokenProvider>
       <App />
+      <ToastContainer />
     </TokenProvider>
   </React.StrictMode>,
   document.getElementById('root')
