@@ -15,8 +15,8 @@ function App() {
       {window.ethereum === undefined && (
       <ConnectWalletView>
         <h3>No wallet detected</h3>
-        <p>Please install some wallet first, MetaMusk is suggested, and you can download it from</p>
-        <a href="https://metamusk.io" target="_blank" rel="noreferrer">metamusk.io</a>
+        <p>Please install some wallet first, MetaMask is suggested, and you can download it from</p>
+        <a href="https://metamask.io" target="_blank" rel="noreferrer">metamusk.io</a>
       </ConnectWalletView>
       )}
       {connected && tokenData ? 

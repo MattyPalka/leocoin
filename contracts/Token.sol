@@ -51,7 +51,7 @@ contract Token {
 
   function transfer(address _to, uint256 _value) public returns (bool success){
     require(_to != address(0), "Cannot transfer to zero address");
-    require(canSpendTokens(msg.sender, _value));
+    canSpendTokens(msg.sender, _value);
 
     balances[msg.sender] -= _value;
     balances[_to] += _value;
@@ -89,7 +89,7 @@ contract Token {
   }
 
   function withdrawLeo(uint _value) public returns (bool success) {
-    require(msg.sender == owner, "Only owner can withdraw LEO");
+    require(isOwner(), "Only owner can withdraw LEO");
     require(balances[address(this)] >= _value, "Insufficient funds");
 
     balances[address(this)] -= _value;
