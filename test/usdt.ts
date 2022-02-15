@@ -3,8 +3,9 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { FakeUSDT, FakeUSDT__factory } from "../typechain";
-const TOTAL_SUPPLY = 0;
 const DECIMALS = 6;
+const INITIAL_SUPPLY = 1_000;
+
 
 describe("USDT", function () {
   let token:  FakeUSDT;
@@ -31,18 +32,13 @@ describe("USDT", function () {
 
     it("Should return total supply", async () => {
       expect(await token.totalSupply()).to.equal(
-        BigNumber.from(`${TOTAL_SUPPLY}`).mul(BigNumber.from(10).pow(DECIMALS))
+        BigNumber.from(`${INITIAL_SUPPLY}`).mul(BigNumber.from(10).pow(DECIMALS))
       );
     });
 
-    it("Should assign all tokens to the token addess", async () => {
-      const tokenBalance = await token.balanceOf(token.address);
-      expect(await token.totalSupply()).to.equal(tokenBalance);
-    });
-
-    it("Should not have any assets at owner address", async () => {
+    it("Should mint tokens for owner at deployment", async () => {
       const ownerBalance = await token.balanceOf(owner.address);
-      expect(ownerBalance).to.equal(0);
+      expect(ownerBalance).to.equal(BigNumber.from(1_000).mul(BigNumber.from(10).pow(DECIMALS)));
     });
 
     it("Should not have any assets at not owner address", async () => {
