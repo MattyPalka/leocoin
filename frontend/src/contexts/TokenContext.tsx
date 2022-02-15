@@ -27,7 +27,9 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner()
-    const signerAddress = await signer.getAddress()
+    const signerAddress = await signer.getAddress();
+    const { chainId } = await provider.getNetwork();
+    console.log('NetworkId: ', chainId);
     setConnected(true);
   
     const token = new ethers.Contract(contractAddress.Token, TokenArtifacts.abi, signer);

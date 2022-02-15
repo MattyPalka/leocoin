@@ -2,13 +2,13 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
-import { Token } from "../typechain";
+import { LeoToken } from "../typechain";
 
 const TOTAL_SUPPLY = 100_000;
 const DECIMALS = 18;
 
-describe("Token", function () {
-  let token: Token;
+describe("LeoToken", function () {
+  let token: LeoToken;
   let owner: SignerWithAddress;
   let address1: SignerWithAddress;
   let address2: SignerWithAddress;
