@@ -38,7 +38,7 @@ describe("USDT", function () {
 
     it("Should mint tokens for owner at deployment", async () => {
       const ownerBalance = await token.balanceOf(owner.address);
-      expect(ownerBalance).to.equal(BigNumber.from(1_000).mul(BigNumber.from(10).pow(DECIMALS)));
+      expect(ownerBalance).to.equal(BigNumber.from(INITIAL_SUPPLY).mul(BigNumber.from(10).pow(DECIMALS)));
     });
 
     it("Should not have any assets at not owner address", async () => {
