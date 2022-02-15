@@ -6,11 +6,13 @@ contract Token {
   address public owner;
   mapping (address => uint) private balances;
   mapping (address => mapping (address => uint)) private allowed;
+  mapping (address => uint) private vestedAmount;
+  mapping (address => uint) private vestedUntilDate;
 
   constructor(){
-
-    balances[msg.sender] = totalSupply();
+    balances[address(this)] = totalSupply();
     owner = msg.sender;
+    allowed[address(this)][msg.sender] = totalSupply(); 
   }
 
   event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -37,9 +39,18 @@ contract Token {
     return balances[_owner];
   }
 
+  function canSpendTokens(address _spender, uint _value) public view returns (bool canSpend){
+    require(balances[_spender] >= _value, "Insufficient funds");
+    if(vestedUntilDate[_spender] > block.timestamp){
+      require(balances[_spender] - vestedAmount[_spender] >= _value, "Funds still vested");
+    }
+
+    return true;
+  }
+
   function transfer(address _to, uint256 _value) public returns (bool success){
     require(_to != address(0), "Cannot transfer to zero address");
-    require(balances[msg.sender] >= _value, "Insufficient funds");
+    canSpendTokens(msg.sender, _value);
 
     balances[msg.sender] -= _value;
     balances[_to] += _value;
@@ -76,4 +87,48 @@ contract Token {
     return allowed[_owner][_spender];
   }
 
+  function withdrawLeo(uint _value) public returns (bool success) {
+    require(isOwner(), "Only owner can withdraw LEO");
+    require(balances[address(this)] >= _value, "Insufficient funds");
+
+    balances[address(this)] -= _value;
+    balances[msg.sender] += _value;
+
+    emit Transfer(address(this), msg.sender, _value);
+
+    return true;
+  }
+
+  function paymeup() public payable {
+    require(isOwner(), "Only owner can withdraw ETH");
+
+    uint weiAmount = address(this).balance;
+    
+    require(weiAmount > 0, "No funds to send");
+    
+    payable(msg.sender).transfer(weiAmount);
+  }
+
+  function buy() public payable {
+    require(msg.value > 0, "Minimum 1 wei to buy LEO");
+
+    uint tokensToSend = msg.value * 100;
+
+    require(vestedUntilDate[msg.sender] < block.timestamp, "Cannot buy in a week of prev");
+    require(balances[address(this)] >= tokensToSend, "Cannot sell more than have");
+    
+    balances[address(this)] -= tokensToSend;
+    balances[msg.sender] += tokensToSend;
+    vestedUntilDate[msg.sender] = block.timestamp + (7 days);
+    vestedAmount[msg.sender] = tokensToSend;
+
+    emit Transfer(address(this), msg.sender, tokensToSend);
+  }
+
+  function isOwner() public view returns (bool isOwnerTrue) {
+    if (msg.sender == owner) {
+      return true;
+    }
+    return false;
+  }
 }
