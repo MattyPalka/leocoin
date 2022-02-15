@@ -1,19 +1,24 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./LeoToken.sol";
+import "./FakeUSDT.sol";
 
 contract Marketplace {
 
-  IERC20 private leoToken;
-  IERC20 private usdtToken;
+  LeoToken private leoToken;
+  FakeUSDT private usdtToken;
   
   constructor(address _leoToken, address _usdtToken) {
-    leoToken = IERC20(_leoToken);
-    usdtToken = IERC20(_usdtToken);
+    leoToken = LeoToken(_leoToken);
+    usdtToken = FakeUSDT(_usdtToken);
   }
 
-  function sellLeoForUsdt() public {
-    
+  function exchange(string memory _purchasedTokenSymbol, uint _purchaseAmount) public view{
+    if (keccak256(abi.encodePacked(_purchasedTokenSymbol)) == keccak256(abi.encodePacked(leoToken.symbol()))) {
+      
+    } else if (keccak256(abi.encodePacked(_purchasedTokenSymbol)) == keccak256(abi.encodePacked(leoToken.symbol()))) {
+
+    }
   }
 }
