@@ -21,7 +21,7 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   // We get the contract to deploy
-  const Token = await ethers.getContractFactory("Token");
+  const Token = await ethers.getContractFactory("LeoToken");
   const token = await Token.deploy();
 
   await token.deployed();
@@ -45,9 +45,9 @@ function saveFrontendFiles(token: Token) {
     JSON.stringify({ Token: token.address }, undefined, 2)
   );
 
-  const TokenArtifact = artifacts.readArtifactSync("Token");
+  const TokenArtifact = artifacts.readArtifactSync("LeoToken");
   fs.writeFileSync(
-    contractsDir + "/Token.json",
+    contractsDir + "/LeoToken.json",
     JSON.stringify(TokenArtifact, null, 2)
   );
 }

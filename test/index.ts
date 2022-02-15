@@ -15,7 +15,7 @@ describe("Token", function () {
   let address3: SignerWithAddress;
 
   beforeEach(async () => {
-    const Token = await ethers.getContractFactory("Token");
+    const Token = await ethers.getContractFactory("LeoToken");
     token = await Token.deploy();
     [owner, address1, address2, address3] = await ethers.getSigners();
     await token.deployed();

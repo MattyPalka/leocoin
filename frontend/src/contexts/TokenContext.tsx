@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 import { TokenData } from "types/TokenData";
 import { makeContext } from "./ContextCreator";
-import TokenArtifacts from 'contracts/Token.json'
+import TokenArtifacts from 'contracts/LeoToken.json'
 import contractAddress from 'contracts/contract-addresses.json'
 
 export const [useTokenContext, TokenProvider] = makeContext(()=>{
