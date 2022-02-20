@@ -1,5 +1,11 @@
+import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { FakeUSDT, FakeUSDT__factory, LeoToken, Marketplace, Marketplace__factory } from "../typechain";
+
+enum purchaseDirection {
+  LEO,
+  USDT
+}
 
 
 describe("Marketplace", async () => {
@@ -24,6 +30,14 @@ describe("Marketplace", async () => {
     marketplace = await Marketplace.deploy(leoToken.address, usdtToken.address)
 
     await marketplace.deployed()
+
+    await leoToken.approve(marketplace.address, await leoToken.totalSupply())
   });
 
+  describe("xxx", () => {
+    it ("should leo", async () => {
+      await marketplace.exchange(BigNumber.from(3).mul( BigNumber.from(10).pow(6)), purchaseDirection.LEO);
+    })
+
+  })
 })

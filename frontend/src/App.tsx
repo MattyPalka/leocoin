@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { ConnectedView } from "./views/ConnectedView";
-import { useTokenContext } from './contexts/TokenContext';
+import { useLeoTokenContext } from './contexts/LeoTokenContext';
 import { ConnectWalletView, ContentWrapper } from "styled";
 
 function App() {
-  const {tokenData, connect, connected, refresh } = useTokenContext()
+  const {tokenData, connect, connected, refresh } = useLeoTokenContext()
 
   useEffect(()=>{
     refresh()

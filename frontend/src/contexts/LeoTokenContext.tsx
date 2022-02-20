@@ -6,7 +6,7 @@ import { makeContext } from "./ContextCreator";
 import TokenArtifacts from 'contracts/LeoToken.json'
 import contractAddress from 'contracts/contract-addresses.json'
 
-export const [useTokenContext, TokenProvider] = makeContext(()=>{
+export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
 
   const [connected, setConnected] = useState(false)
   const [tokenData, setTokenData] = useState<TokenData>()
@@ -32,7 +32,7 @@ export const [useTokenContext, TokenProvider] = makeContext(()=>{
     console.log('NetworkId: ', chainId);
     setConnected(true);
   
-    const token = new ethers.Contract(contractAddress.Token, TokenArtifacts.abi, signer);
+    const token = new ethers.Contract(contractAddress.LeoToken, TokenArtifacts.abi, signer);
     setTokenData(prevState => ({
       ...prevState,
       token,

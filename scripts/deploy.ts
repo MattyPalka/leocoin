@@ -4,7 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { artifacts, ethers } from "hardhat";
-import { Token } from "../typechain";
+import { FakeUSDT, LeoToken, Marketplace } from "../typechain";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -21,17 +21,32 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   // We get the contract to deploy
-  const Token = await ethers.getContractFactory("LeoToken");
-  const token = await Token.deploy();
+  const LeoToken = await ethers.getContractFactory("LeoToken");
+  const leoToken = await LeoToken.deploy();
 
-  await token.deployed();
+  await leoToken.deployed();
 
-  console.log("Token deployed to address:", token.address);
+  console.log("LeoToken deployed to address:", leoToken.address);
 
-  saveFrontendFiles(token);
+  const USDTToken = await ethers.getContractFactory("FakeUSDT");
+  const usdtToken = await USDTToken.deploy()
+
+  await usdtToken.deployed()
+
+  console.log("USDT deployed to address:", usdtToken.address);
+
+  const Marketplace = await ethers.getContractFactory("Marketplace");
+  const marketplace = await Marketplace.deploy(leoToken.address, usdtToken.address);
+
+  await marketplace.deployed();
+
+  console.log("Marketplace deployed to address:", marketplace.address);
+  
+
+  saveFrontendFiles(leoToken, usdtToken, marketplace);
 }
 
-function saveFrontendFiles(token: Token) {
+function saveFrontendFiles(leoToken: LeoToken, usdtToken: FakeUSDT, marketplace: Marketplace) {
   const fs = require("fs");
   const path = require("path");
   const contractsDir = path.join(__dirname, "/../frontend/src/contracts");
@@ -42,13 +57,28 @@ function saveFrontendFiles(token: Token) {
 
   fs.writeFileSync(
     contractsDir + "/contract-addresses.json",
-    JSON.stringify({ Token: token.address }, undefined, 2)
+    JSON.stringify({ LeoToken: leoToken.address,
+                     USDTToken: usdtToken.address,
+                     Marketplace: marketplace.address 
+                    }, undefined, 2)
   );
 
-  const TokenArtifact = artifacts.readArtifactSync("LeoToken");
+  const LeoTokenArtifact = artifacts.readArtifactSync("LeoToken");
   fs.writeFileSync(
     contractsDir + "/LeoToken.json",
-    JSON.stringify(TokenArtifact, null, 2)
+    JSON.stringify(LeoTokenArtifact, null, 2)
+  );
+
+  const UsdtTokenArtifact = artifacts.readArtifactSync("FakeUSDT");
+  fs.writeFileSync(
+    contractsDir + "/UsdtToken.json",
+    JSON.stringify(UsdtTokenArtifact, null, 2)
+  );
+
+  const MarketplaceArtifact = artifacts.readArtifactSync("Marketplace");
+  fs.writeFileSync(
+    contractsDir + "/Marketplace.json",
+    JSON.stringify(MarketplaceArtifact, null, 2)
   );
 }
 
