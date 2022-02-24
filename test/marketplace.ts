@@ -1,4 +1,5 @@
-import { BigNumber } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
 import { FakeUSDT, FakeUSDT__factory, LeoToken, Marketplace, Marketplace__factory } from "../typechain";
 
@@ -13,6 +14,9 @@ describe("Marketplace", async () => {
   let usdtToken:  FakeUSDT;
   let leoToken: LeoToken;
   let marketplace: Marketplace;
+  let nft: Contract;
+
+  let buyer: SignerWithAddress;
 
   
   beforeEach(async () => {
@@ -26,17 +30,23 @@ describe("Marketplace", async () => {
     
     await leoToken.deployed();
 
+    const NFT = await ethers.getContractFactory("Leon");
+    nft = await NFT.deploy();
+    
+    await leoToken.deployed();
+
     const Marketplace = await ethers.getContractFactory("Marketplace") as Marketplace__factory;
-    marketplace = await Marketplace.deploy(leoToken.address, usdtToken.address)
+    marketplace = await Marketplace.deploy(leoToken.address, usdtToken.address, nft.address);
 
-    await marketplace.deployed()
+    await marketplace.deployed();
 
-    await leoToken.approve(marketplace.address, await leoToken.totalSupply())
+    [buyer] = await ethers.getSigners();
+
   });
 
   describe("xxx", () => {
     it ("should leo", async () => {
-      await marketplace.exchange(BigNumber.from(3).mul( BigNumber.from(10).pow(6)), purchaseDirection.LEO);
+      
     })
 
   })

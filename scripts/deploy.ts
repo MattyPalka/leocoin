@@ -35,8 +35,15 @@ async function main() {
 
   console.log("USDT deployed to address:", usdtToken.address);
 
+  const NFT = await ethers.getContractFactory("Leon");
+  const nft = await NFT.deploy()
+
+  await nft.deployed()
+
+  console.log("NFT deployed to address:", nft.address);
+
   const Marketplace = await ethers.getContractFactory("Marketplace");
-  const marketplace = await Marketplace.deploy(leoToken.address, usdtToken.address);
+  const marketplace = await Marketplace.deploy(leoToken.address, usdtToken.address, nft.address);
 
   await marketplace.deployed();
 

@@ -1,46 +1,57 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "./LeoToken.sol";
-import "./FakeUSDT.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
 import "hardhat/console.sol";
 
-contract Marketplace {
+contract Marketplace is ERC1155Holder {
 
-  LeoToken private leoToken;
-  FakeUSDT private usdtToken;
-  enum TokenName {LEO, USDT}
-  
-  constructor(address _leoToken, address _usdtToken) {
-    leoToken = LeoToken(_leoToken);
-    usdtToken = FakeUSDT(_usdtToken);
+  address private leoToken;
+  address private usdtToken;
+  address private nft;
 
-    usdtToken.giveMeTokens(100_000 * (10 * usdtToken.decimals()));
+  modifier isMyToken(address _token) {
+    require(_token == leoToken || _token == usdtToken, "invalid token");
+    _;
   }
 
+  constructor(address _leoToken, address _usdtToken, address _nft) {
+    leoToken = _leoToken;
+    usdtToken = _usdtToken;
+    nft = _nft;
+  }
 
-
-  function exchange(uint _usdtAmount, TokenName _purchaseDirection) public payable{
-    
-    uint leoAmount = _usdtAmount * 100 / 3 ;
-    uint actualLeoAmount = leoAmount / (10 ** usdtToken.decimals()) * (10 ** leoToken.decimals());
-
-
-    if (_purchaseDirection == TokenName.LEO){
-      require(usdtToken.balanceOf(msg.sender) > _usdtAmount, "Insufficient funds");
-      require(leoToken.balanceOf(address(leoToken)) > actualLeoAmount, "Insufficient leo to sell");
-      usdtToken.transferFrom(msg.sender, address(this), _usdtAmount);
-      leoToken.transferFrom(address(leoToken), msg.sender, actualLeoAmount);
-
-    } else if (_purchaseDirection == TokenName.USDT) {
-      require(leoToken.balanceOf(msg.sender) > actualLeoAmount, "Insufficient funds");
-      require(usdtToken.balanceOf(address(this)) > _usdtAmount, "Insufficient usdt to sell");
-
-      leoToken.transferFrom(msg.sender, address(this), actualLeoAmount);
-      usdtToken.transfer(msg.sender, _usdtAmount);
+  function calculatePrice(address _from) internal view returns (uint) {
+    if (_from == leoToken){
+      return 200 * (10 ** 18);
     } else {
-      // DO NOTHING 
+      return 15 * (10 * 6) / 10;
     }
+  }
+
+  function exchange(address _from, address _to, uint _amount) external isMyToken(_from) isMyToken(_to) {
+    uint toSend;
+
+    if (_from == leoToken) {
+      toSend = _amount * 3 / (10 ** 14);
+    } else {
+      toSend = _amount * (10 ** 14) / 3;
+    }
+
+    require(IERC20(_to).balanceOf(address(this)) >= toSend, "Insufficient market");
+    IERC20(_from).transferFrom(msg.sender, address(this), toSend);
+    IERC20(_to).transfer(msg.sender, toSend);
+  }
+
+  function buyNFT(uint _tokenId, address _with) external isMyToken(_with) {
+    IERC20(_with).transferFrom(msg.sender, address(this), calculatePrice(_with));
+    IERC1155(nft).safeTransferFrom(msg.sender, address(this), _tokenId, 1, "");
+  }
+
+  function sellNFT(uint _tokenId, address _for) external isMyToken(_for) {
+    IERC1155(nft).safeTransferFrom(msg.sender, address(this), _tokenId, 1, "");
   }
 }
