@@ -48,6 +48,10 @@ async function main() {
   await marketplace.deployed();
 
   console.log("Marketplace deployed to address:", marketplace.address);
+
+  await usdtToken.giveTokens(marketplace.address, ethers.utils.parseUnits("100000", 6));
+  await leoToken.transferFrom(leoToken.address, marketplace.address, ethers.utils.parseUnits("50000", 18));
+  console.log('Initial tokens given')
   
 
   saveFrontendFiles(leoToken, usdtToken, marketplace);

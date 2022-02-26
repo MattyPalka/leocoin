@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 export const ContentWrapper = styled.div`
-  margin: 10% 5%;
   width: 90%;
   height: 80%;
   display: flex;

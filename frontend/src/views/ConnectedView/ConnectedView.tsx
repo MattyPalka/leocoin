@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { useState } from "react";
 import { useLeoTokenContext } from 'contexts/LeoTokenContext';
-import { TokenData } from 'types/TokenData';
+import { LeoTokenData } from 'types/tokens';
 import { ConnectedView as Styled } from "./styled";
 import { ListedText } from "components/ListedText";
 import { InputWithButton } from "components/InputWithButton";
@@ -10,7 +10,7 @@ import { setToast } from "utils/setToast";
 
 export const ConnectedView = () => {
   const { tokenData, refresh, ownerEthBalance} = useLeoTokenContext()
-  const { token, signerAddress, isOwnerConnected, tokenBalance, tokenSymbol } = tokenData as TokenData;
+  const { token, signerAddress, isOwnerConnected, tokenBalance, tokenSymbol } = tokenData as LeoTokenData;
   const [leoValue, setLeoValue] = useState("0")
   const [ethValue, setEthValue] = useState("0")
 
