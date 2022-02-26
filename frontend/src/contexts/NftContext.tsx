@@ -6,7 +6,7 @@ import { makeContext } from "./ContextCreator";
 import TokenArtifacts from 'contracts/UsdtToken.json'
 import contractAddress from 'contracts/contract-addresses.json'
 
-export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
+export const [useNftContext, NftProvider] = makeContext(()=>{
 
   const [connected, setConnected] = useState(false)
   const [nftData, setNftData] = useState<NFT>()

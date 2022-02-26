@@ -6,7 +6,7 @@ import { makeContext } from "./ContextCreator";
 import TokenArtifacts from 'contracts/Marketplace.json'
 import contractAddress from 'contracts/contract-addresses.json'
 
-export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
+export const [useMarketplaceContext, MarketplaceProvider] = makeContext(()=>{
 
   const [connected, setConnected] = useState(false)
   const [marketplaceData, setMarketplaceData] = useState<MarketplaceData>()

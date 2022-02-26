@@ -6,7 +6,7 @@ import { makeContext } from "./ContextCreator";
 import TokenArtifacts from 'contracts/UsdtToken.json'
 import contractAddress from 'contracts/contract-addresses.json'
 
-export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
+export const [useUsdtContext, UsdtProvider] = makeContext(()=>{
 
   const [connected, setConnected] = useState(false)
   const [usdtTokenData, setUsdtTokenData] = useState<UsdtToken>()
