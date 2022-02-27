@@ -1,24 +1,24 @@
 
 import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
-import { LeoTokenData } from "types/tokens";
+import { ContractData } from "types/tokens";
 import { makeContext } from "./ContextCreator";
 import TokenArtifacts from 'contracts/LeoToken.json'
 import contractAddress from 'contracts/contract-addresses.json'
 
-export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
+export const [useContractContext, ContractProvider] = makeContext(()=>{
 
   const [connected, setConnected] = useState(false)
-  const [tokenData, setTokenData] = useState<LeoTokenData>()
+  const [leoTokenData, setLeoTokenData] = useState<ContractData>()
   const [ownerEthBalance, setOwnerEthBalance] = useState('')
 
 
-  let token: ethers.Contract | undefined, 
+  let leoToken: ethers.Contract | undefined, 
       signer: ethers.providers.JsonRpcSigner | undefined;
   
-  if (tokenData){
-    token = tokenData.token;
-    signer = tokenData.signer;
+  if (leoTokenData){
+    leoToken = leoTokenData.leoToken;
+    signer = leoTokenData.signer;
   }
   
 
@@ -32,10 +32,10 @@ export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
     console.log('NetworkId: ', chainId);
     setConnected(true);
   
-    const token = new ethers.Contract(contractAddress.LeoToken, TokenArtifacts.abi, signer);
-    setTokenData(prevState => ({
+    const leoToken = new ethers.Contract(contractAddress.LeoToken, TokenArtifacts.abi, signer);
+    setLeoTokenData(prevState => ({
       ...prevState,
-      token,
+      leoToken,
       signer,
       signerAddress
     }))
@@ -44,37 +44,37 @@ export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
 
   const refresh = useCallback( async () => {
      
-    if (!token || !signer){
+    if (!leoToken || !signer){
       return;
     }
 
-    const tokens = await token.balanceOf(signer.getAddress());
+    const tokens = await leoToken.balanceOf(signer.getAddress());
 
     const tokenBalanceReadable = ethers.utils.formatUnits(tokens, 18);
-    const tokenName = await token.name();
-    const tokenSymbol = await token.symbol();
-    const isOwnerConnected = await token.isOwner();
+    const leoTokenName = await leoToken.name();
+    const leoTokenSymbol = await leoToken.symbol();
+    const isOwnerConnected = await leoToken.isOwner();
 
     if (isOwnerConnected){
-      const ethBalance = await token.provider.getBalance(token.address)
+      const ethBalance = await leoToken.provider.getBalance(leoToken.address)
       setOwnerEthBalance(ethers.utils.formatEther(ethBalance))
     }
 
-    setTokenData(prevState => ({
+    setLeoTokenData(prevState => ({
       ...prevState,
-      tokenBalance: tokenBalanceReadable,
-      tokenName,
-      tokenSymbol,
+      leoTokenBalance: tokenBalanceReadable,
+      leoTokenName,
+      leoTokenSymbol,
       isOwnerConnected,
     }))
 
-  },[token, signer])
+  },[leoToken, signer])
 
   useEffect(()=>{
     const handleAccountChange = ([newAddress]: [string]) => {
       if (newAddress === undefined){
         setConnected(false);
-        setTokenData(undefined);
+        setLeoTokenData(undefined);
         return
       } 
       connect()
@@ -83,6 +83,6 @@ export const [useLeoTokenContext, LeoTokenProvider] = makeContext(()=>{
     return () => { window.ethereum.removeListener( "accountsChanged", handleAccountChange )}
   },[connect])
   
-  return {tokenData, setTokenData, connect, connected, refresh, ownerEthBalance}
+  return {leoTokenData, setLeoTokenData, connect, connected, refresh, ownerEthBalance}
 });
 

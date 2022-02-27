@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { useState } from "react";
-import { useLeoTokenContext } from 'contexts/LeoTokenContext';
-import { LeoTokenData } from 'types/tokens';
+import { useContractContext } from 'contexts/ContractContext';
+import { ContractData } from 'types/tokens';
 import { ConnectedView as Styled } from "./styled";
 import { ListedText } from "components/ListedText";
 import { InputWithButton } from "components/InputWithButton";
@@ -9,14 +9,14 @@ import { setToast } from "utils/setToast";
 
 
 export const AccountView = () => {
-  const { tokenData, refresh, ownerEthBalance} = useLeoTokenContext()
-  const { token, signerAddress, isOwnerConnected, tokenBalance, tokenSymbol } = tokenData as LeoTokenData;
+  const { leoTokenData, refresh, ownerEthBalance} = useContractContext()
+  const { leoToken, signerAddress, isOwnerConnected, leoTokenBalance, leoTokenSymbol } = leoTokenData as ContractData;
   const [leoValue, setLeoValue] = useState("0")
   const [ethValue, setEthValue] = useState("0")
 
   const buy = async () => {
     try{
-      const tx = await token?.buy({value: ethers.utils.parseEther(ethValue)})
+      const tx = await leoToken?.buy({value: ethers.utils.parseEther(ethValue)})
       await tx.wait();
       refresh()
     } catch (e: any) {
@@ -26,7 +26,7 @@ export const AccountView = () => {
 
   const withdrawLEO = async () => {
     try {
-      const tx = await token?.withdrawLeo(handleAmount(leoValue));
+      const tx = await leoToken?.withdrawLeo(handleAmount(leoValue));
       await tx.wait();
       
       refresh();
@@ -37,7 +37,7 @@ export const AccountView = () => {
 
   const withdrawETH = async () => {
     try {
-      await token?.paymeup();
+      await leoToken?.paymeup();
     } catch (e: any){
       setToast(e.data.message)
     }
@@ -57,7 +57,7 @@ export const AccountView = () => {
       </Styled.Welcome>
       <Styled.Data>
       <ListedText label='Your wallet address:' text={signerAddress} />
-      <ListedText label="Current balance:" text={`${tokenBalance} ${tokenSymbol}`} />
+      <ListedText label="Current balance:" text={`${leoTokenBalance} ${leoTokenSymbol}`} />
 
       <div>
         {isOwnerConnected ? (

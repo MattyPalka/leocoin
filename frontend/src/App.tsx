@@ -1,6 +1,6 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { AccountView } from "./views/AccountView";
-import { useLeoTokenContext } from './contexts/LeoTokenContext';
+import { useContractContext } from './contexts/ContractContext';
 import { ConnectWalletView, ContentWrapper } from "styled";
 import {
   BrowserRouter,
@@ -10,31 +10,16 @@ import {
 import { NftGalleryView } from "views/NftGalleryView";
 import { MarketplaceView } from "views/MarketplaceView";
 import { NavBar } from "components/NavBar";
-import { useMarketplaceContext } from "contexts/MarketplaceContext";
-import { useUsdtContext } from "contexts/UsdtContext";
-import { useNftContext } from "contexts/NftContext";
 
 function App() {
-  const {tokenData, connect: leoConnect, connected, refresh } = useLeoTokenContext()
-  const {connect: marketplaceConnect, connected: marketplaceConnected, refresh: marketplaceRefresh} = useMarketplaceContext()
-  const {connect: usdtConnect, connected: usdtConnected, refresh: usdtRefresh} = useUsdtContext();
-  const {connect: nftConnect, connected: nftConnected, refresh: nftRefresh} = useNftContext();
+  const {leoTokenData, connect, connected, refresh } = useContractContext()
+
 
   useEffect(()=>{
-    marketplaceRefresh()
-    usdtRefresh()
-    nftRefresh()
+
     refresh()
-  },[refresh, marketplaceRefresh, nftRefresh, usdtRefresh])
+  },[refresh])
 
-
-
-  const connect = useCallback(() => {
-    leoConnect()
-    marketplaceConnect()
-    usdtConnect()
-    nftConnect()
-  }, [leoConnect, marketplaceConnect, usdtConnect, nftConnect])
 
   useEffect(()=>{
     connect()
@@ -53,7 +38,7 @@ function App() {
     )
   }
 
-  if (!connected || !marketplaceConnected || !nftConnected || !usdtConnected || !tokenData) {
+  if (!connected || !leoTokenData) {
     return (
       <ContentWrapper>
         <ConnectWalletView>

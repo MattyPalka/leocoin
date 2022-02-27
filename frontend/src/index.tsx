@@ -3,25 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { LeoTokenProvider } from './contexts/LeoTokenContext';
+import { ContractProvider } from './contexts/ContractContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { UsdtProvider } from 'contexts/UsdtContext';
-import { NftProvider } from 'contexts/NftContext';
-import { MarketplaceProvider } from 'contexts/MarketplaceContext';
 
 ReactDOM.render(
   <React.StrictMode>
-    <LeoTokenProvider>
-      <UsdtProvider>
-        <NftProvider>
-          <MarketplaceProvider>
-           <App />
-          </MarketplaceProvider>
-        </NftProvider>
-      </UsdtProvider>
+    <ContractProvider>
+      <App />
       <ToastContainer />
-    </LeoTokenProvider>
+    </ContractProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
