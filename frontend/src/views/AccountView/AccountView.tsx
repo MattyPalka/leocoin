@@ -9,10 +9,12 @@ import { setToast } from "utils/setToast";
 
 
 export const AccountView = () => {
-  const { leoTokenData, refresh, ownerEthBalance} = useContractContext()
-  const { leoToken, signerAddress, isOwnerConnected, leoTokenBalance, leoTokenSymbol } = leoTokenData as ContractData;
+  const { contractData, refresh, ownerEthBalance} = useContractContext()
+  const { leoToken, usdtTokenBalance, usdtToken, marketplace, signerAddress, isOwnerConnected, leoTokenBalance, leoTokenSymbol } = contractData as ContractData;
   const [leoValue, setLeoValue] = useState("0")
   const [ethValue, setEthValue] = useState("0")
+  const [usdtValue, setUsdtValue] = useState("0")
+  const [usdtForMarketplaceValue, setUsdtForMarketplaceValue] = useState("0")
 
   const buy = async () => {
     try{
@@ -31,6 +33,25 @@ export const AccountView = () => {
       
       refresh();
     } catch (e: any){
+      setToast(e.data.message)
+    }
+  }
+
+  const giveMeUSDT = async () => {
+    try {
+      const tx = await usdtToken?.giveTokens(signerAddress, ethers.utils.parseUnits(usdtValue, 6))
+      await tx.wait()
+      refresh();
+    } catch (e: any) {
+      setToast(e.data.message)
+    }
+  }
+
+  const giveMarketplaceUSDT = async() => {
+    try {
+      const tx = await usdtToken?.giveTokens(marketplace?.address, ethers.utils.parseUnits(usdtForMarketplaceValue, 6))
+      await tx.wait()
+    } catch (e: any) {
       setToast(e.data.message)
     }
   }
@@ -57,7 +78,19 @@ export const AccountView = () => {
       </Styled.Welcome>
       <Styled.Data>
       <ListedText label='Your wallet address:' text={signerAddress} />
-      <ListedText label="Current balance:" text={`${leoTokenBalance} ${leoTokenSymbol}`} />
+      <ListedText label="Current balance:" text={`${leoTokenBalance} ${leoTokenSymbol} | ${usdtTokenBalance} USDT`} />
+      <ListedText label='In need for USDT?' />
+      <InputWithButton 
+        inputValue={usdtValue} 
+        inputOnChange={(e) => {
+          if (!/^(\d)*\.?\d{0,6}$/.test(e.target.value)){
+            return
+          }
+          setUsdtValue(e.target.value)}
+        }
+        buttonText='Give Me USDT'
+        onButtonClick={giveMeUSDT}
+      />
 
       <div>
         {isOwnerConnected ? (
@@ -73,6 +106,18 @@ export const AccountView = () => {
               }
               buttonText='Withdraw Leo'
               onButtonClick={withdrawLEO}
+            />
+            <ListedText label='You can also fund the exchange with USDT' />
+            <InputWithButton 
+              inputValue={usdtForMarketplaceValue} 
+              inputOnChange={(e) => {
+                if (!/^(\d)*\.?\d{0,6}$/.test(e.target.value)){
+                  return
+                }
+                setUsdtForMarketplaceValue(e.target.value)}
+              }
+              buttonText='Fund Exchange'
+              onButtonClick={giveMarketplaceUSDT}
             />
             <hr />
             <h2>Need some Ethereum?</h2>

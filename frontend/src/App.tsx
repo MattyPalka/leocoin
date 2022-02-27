@@ -12,7 +12,7 @@ import { MarketplaceView } from "views/MarketplaceView";
 import { NavBar } from "components/NavBar";
 
 function App() {
-  const {leoTokenData, connect, connected, refresh } = useContractContext()
+  const {contractData, connect, connected, refresh } = useContractContext()
 
 
   useEffect(()=>{
@@ -38,7 +38,7 @@ function App() {
     )
   }
 
-  if (!connected || !leoTokenData) {
+  if (!connected || !contractData) {
     return (
       <ContentWrapper>
         <ConnectWalletView>

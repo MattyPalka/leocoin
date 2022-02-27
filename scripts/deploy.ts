@@ -4,7 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { artifacts, ethers } from "hardhat";
-import { FakeUSDT, LeoToken, Marketplace } from "../typechain";
+import { FakeUSDT, LeoToken, Marketplace, Leon } from "../typechain";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -54,10 +54,10 @@ async function main() {
   console.log('Initial tokens given')
   
 
-  saveFrontendFiles(leoToken, usdtToken, marketplace);
+  saveFrontendFiles(leoToken, usdtToken, marketplace, nft);
 }
 
-function saveFrontendFiles(leoToken: LeoToken, usdtToken: FakeUSDT, marketplace: Marketplace) {
+function saveFrontendFiles(leoToken: LeoToken, usdtToken: FakeUSDT, marketplace: Marketplace, nft: Leon) {
   const fs = require("fs");
   const path = require("path");
   const contractsDir = path.join(__dirname, "/../frontend/src/contracts");
@@ -70,7 +70,8 @@ function saveFrontendFiles(leoToken: LeoToken, usdtToken: FakeUSDT, marketplace:
     contractsDir + "/contract-addresses.json",
     JSON.stringify({ LeoToken: leoToken.address,
                      USDTToken: usdtToken.address,
-                     Marketplace: marketplace.address 
+                     Marketplace: marketplace.address ,
+                     LeonNFT: nft.address
                     }, undefined, 2)
   );
 
@@ -90,6 +91,12 @@ function saveFrontendFiles(leoToken: LeoToken, usdtToken: FakeUSDT, marketplace:
   fs.writeFileSync(
     contractsDir + "/Marketplace.json",
     JSON.stringify(MarketplaceArtifact, null, 2)
+  );
+
+  const LeonNFTArtifact = artifacts.readArtifactSync("Leon");
+  fs.writeFileSync(
+    contractsDir + "/LeonNft.json",
+    JSON.stringify(LeonNFTArtifact, null, 2)
   );
 }
 

@@ -8,6 +8,7 @@ export interface ContractData {
   marketplace?: Contract;
   usdtToken?: Contract;
   nft?: Contract;
+  usdtTokenBalance?: string;
   leoTokenBalance?: string;
   leoTokenName?: string;
   leoTokenSymbol?: string;

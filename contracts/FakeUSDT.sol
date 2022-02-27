@@ -12,6 +12,6 @@ contract FakeUSDT is ERC20 {
   }
 
   function giveTokens(address _beneficient, uint _value) public {
-    _mint(_beneficient, _value * (10 ** decimals()));
+    _mint(_beneficient, _value);
   }
 }
