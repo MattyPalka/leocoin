@@ -8,7 +8,7 @@ import { InputWithButton } from "components/InputWithButton";
 import { setToast } from "utils/setToast";
 
 
-export const ConnectedView = () => {
+export const AccountView = () => {
   const { tokenData, refresh, ownerEthBalance} = useLeoTokenContext()
   const { token, signerAddress, isOwnerConnected, tokenBalance, tokenSymbol } = tokenData as LeoTokenData;
   const [leoValue, setLeoValue] = useState("0")

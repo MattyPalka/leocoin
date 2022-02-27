@@ -4,6 +4,7 @@ export const ContentWrapper = styled.div`
   width: 90%;
   height: 80%;
   display: flex;
+  flex-direction: column;
   background-color: #17191C;
   border-radius: 16px;
   color: #FFFFFF;
