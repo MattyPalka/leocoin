@@ -33,7 +33,11 @@ const config: HardhatUserConfig = {
     rinkeby: {
       url: 'https://eth-rinkeby.alchemyapi.io/v2/611gjYJtPCUXcQMTUdn2OtnQRLrQChoB',
       accounts: ['ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80']
-    }
+    },
+    ganache: {
+      url: "http://127.0.0.1:7545",
+      accounts: ['47f8fde4332237a2791139f5bae9ecdc9607131e1a96e257bfb6af5a75bfcdda']
+  }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

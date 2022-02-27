@@ -73,7 +73,7 @@ export const AccountView = () => {
   return (
     <Styled.ViewWrapper>
       <Styled.Welcome>
-      <h2>LEOCODE TOKEN</h2>
+      <h2>Your account</h2>
       <p>Welcome {isOwnerConnected ? 'owner' : 'investor'}</p>
       </Styled.Welcome>
       <Styled.Data>

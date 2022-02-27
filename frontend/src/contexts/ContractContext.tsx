@@ -5,6 +5,7 @@ import { ContractData } from "types/tokens";
 import { makeContext } from "./ContextCreator";
 import LeoTokenArtifacts from 'contracts/LeoToken.json'
 import UsdtTokenArtifacts from 'contracts/UsdtToken.json';
+import MarketplaceArtifacts from 'contracts/Marketplace.json'
 import contractAddress from 'contracts/contract-addresses.json';
 import NftArtifacts from 'contracts/LeonNft.json';
 
@@ -39,7 +40,7 @@ export const [useContractContext, ContractProvider] = makeContext(()=>{
   
     const leoToken = new ethers.Contract(contractAddress.LeoToken, LeoTokenArtifacts.abi, signer);
     const usdtToken = new ethers.Contract(contractAddress.USDTToken, UsdtTokenArtifacts.abi, signer);
-    const marketplace = new ethers.Contract(contractAddress.Marketplace, UsdtTokenArtifacts.abi, signer);
+    const marketplace = new ethers.Contract(contractAddress.Marketplace, MarketplaceArtifacts.abi, signer);
     const nft = new ethers.Contract(contractAddress.LeonNFT, NftArtifacts.abi, signer);
 
     setContractData(prevState => ({
