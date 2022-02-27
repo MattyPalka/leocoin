@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
 export const ContentWrapper = styled.div`
-  margin: 10% 5%;
   width: 90%;
   height: 80%;
   display: flex;
+  flex-direction: column;
   background-color: #17191C;
   border-radius: 16px;
   color: #FFFFFF;

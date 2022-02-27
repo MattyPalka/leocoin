@@ -1,22 +1,24 @@
 import { BigNumber, ethers } from "ethers";
 import { useState } from "react";
-import { useTokenContext } from 'contexts/TokenContext';
-import { TokenData } from 'types/TokenData';
+import { useContractContext } from 'contexts/ContractContext';
+import { ContractData } from 'types/tokens';
 import { ConnectedView as Styled } from "./styled";
 import { ListedText } from "components/ListedText";
 import { InputWithButton } from "components/InputWithButton";
 import { setToast } from "utils/setToast";
 
 
-export const ConnectedView = () => {
-  const { tokenData, refresh, ownerEthBalance} = useTokenContext()
-  const { token, signerAddress, isOwnerConnected, tokenBalance, tokenSymbol } = tokenData as TokenData;
+export const AccountView = () => {
+  const { contractData, refresh, ownerEthBalance} = useContractContext()
+  const { leoToken, usdtTokenBalance, usdtToken, marketplace, signerAddress, isOwnerConnected, leoTokenBalance, leoTokenSymbol } = contractData as ContractData;
   const [leoValue, setLeoValue] = useState("0")
   const [ethValue, setEthValue] = useState("0")
+  const [usdtValue, setUsdtValue] = useState("0")
+  const [usdtForMarketplaceValue, setUsdtForMarketplaceValue] = useState("0")
 
   const buy = async () => {
     try{
-      const tx = await token?.buy({value: ethers.utils.parseEther(ethValue)})
+      const tx = await leoToken?.buy({value: ethers.utils.parseEther(ethValue)})
       await tx.wait();
       refresh()
     } catch (e: any) {
@@ -26,7 +28,7 @@ export const ConnectedView = () => {
 
   const withdrawLEO = async () => {
     try {
-      const tx = await token?.withdrawLeo(handleAmount(leoValue));
+      const tx = await leoToken?.withdrawLeo(handleAmount(leoValue));
       await tx.wait();
       
       refresh();
@@ -35,9 +37,28 @@ export const ConnectedView = () => {
     }
   }
 
+  const giveMeUSDT = async () => {
+    try {
+      const tx = await usdtToken?.giveTokens(signerAddress, ethers.utils.parseUnits(usdtValue, 6))
+      await tx.wait()
+      refresh();
+    } catch (e: any) {
+      setToast(e.data.message)
+    }
+  }
+
+  const giveMarketplaceUSDT = async() => {
+    try {
+      const tx = await usdtToken?.giveTokens(marketplace?.address, ethers.utils.parseUnits(usdtForMarketplaceValue, 6))
+      await tx.wait()
+    } catch (e: any) {
+      setToast(e.data.message)
+    }
+  }
+
   const withdrawETH = async () => {
     try {
-      await token?.paymeup();
+      await leoToken?.paymeup();
     } catch (e: any){
       setToast(e.data.message)
     }
@@ -52,12 +73,24 @@ export const ConnectedView = () => {
   return (
     <Styled.ViewWrapper>
       <Styled.Welcome>
-      <h2>LEOCODE TOKEN</h2>
+      <h2>Your account</h2>
       <p>Welcome {isOwnerConnected ? 'owner' : 'investor'}</p>
       </Styled.Welcome>
       <Styled.Data>
       <ListedText label='Your wallet address:' text={signerAddress} />
-      <ListedText label="Current balance:" text={`${tokenBalance} ${tokenSymbol}`} />
+      <ListedText label="Current balance:" text={`${leoTokenBalance} ${leoTokenSymbol} | ${usdtTokenBalance} USDT`} />
+      <ListedText label='In need for USDT?' />
+      <InputWithButton 
+        inputValue={usdtValue} 
+        inputOnChange={(e) => {
+          if (!/^(\d)*\.?\d{0,6}$/.test(e.target.value)){
+            return
+          }
+          setUsdtValue(e.target.value)}
+        }
+        buttonText='Give Me USDT'
+        onButtonClick={giveMeUSDT}
+      />
 
       <div>
         {isOwnerConnected ? (
@@ -73,6 +106,18 @@ export const ConnectedView = () => {
               }
               buttonText='Withdraw Leo'
               onButtonClick={withdrawLEO}
+            />
+            <ListedText label='You can also fund the exchange with USDT' />
+            <InputWithButton 
+              inputValue={usdtForMarketplaceValue} 
+              inputOnChange={(e) => {
+                if (!/^(\d)*\.?\d{0,6}$/.test(e.target.value)){
+                  return
+                }
+                setUsdtForMarketplaceValue(e.target.value)}
+              }
+              buttonText='Fund Exchange'
+              onButtonClick={giveMarketplaceUSDT}
             />
             <hr />
             <h2>Need some Ethereum?</h2>

@@ -3,16 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { TokenProvider } from './contexts/TokenContext';
+import { ContractProvider } from './contexts/ContractContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    <TokenProvider>
+    <ContractProvider>
       <App />
       <ToastContainer />
-    </TokenProvider>
+    </ContractProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
